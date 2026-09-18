@@ -13,6 +13,7 @@ export interface LeadListItem {
   leadId: number;
   fechaRegistro: string;
   canal: string;
+  canalNormalizado?: string | null;
   empresaId: number;
   puntoVentaId: number;
   nombreCliente: string;
@@ -94,4 +95,20 @@ export interface LeadFilters {
   companyId: number;
   siteId: number | null;
   status: string | null;
+}
+
+/** Backend serializes LeadPriority/LeadStatus as their numeric enum value, not the name. */
+const PRIORITY_BY_CODE: Record<number, LeadPriority> = { 0: 'Baja', 1: 'Media', 2: 'Alta' };
+const STATUS_BY_CODE: Record<number, LeadStatus> = {
+  0: 'Nuevo', 1: 'Contactado', 2: 'En gestión', 3: 'Cita agendada', 4: 'Cerrado', 5: 'Perdido',
+};
+
+export function priorityLabel(value: unknown): string {
+  if (typeof value === 'number') { return PRIORITY_BY_CODE[value] ?? String(value); }
+  return typeof value === 'string' && value ? value : '';
+}
+
+export function statusLabel(value: unknown): string {
+  if (typeof value === 'number') { return STATUS_BY_CODE[value] ?? String(value); }
+  return typeof value === 'string' && value ? value : '';
 }

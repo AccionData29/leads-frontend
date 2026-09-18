@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LeadsApiService } from '../../core/services/leads-api.service';
 import { CompanyContextService } from '../../core/services/company-context.service';
-import { LeadListItem } from '../../core/models/lead.models';
+import { LeadListItem, priorityLabel } from '../../core/models/lead.models';
 
 @Component({
   selector: 'app-leads',
@@ -67,7 +67,7 @@ import { LeadListItem } from '../../core/models/lead.models';
                   <td>{{ siteLabel(lead.puntoVentaId) }}</td>
                   <td>{{ lead.canal }}</td>
                   <td>{{ lead.modeloInteresTexto || '—' }}</td>
-                  <td><span class="status" [ngClass]="priority(lead).toLowerCase()">{{ lead.prioridad || lead.estadoGestion }}</span></td>
+                  <td><span class="status" [ngClass]="priority(lead).toLowerCase()">{{ priority(lead) }}</span></td>
                   <td>{{ ((lead.score ?? 0) * 100) | number:'1.0-0' }}%</td>
                 </tr>
               } @empty {
@@ -104,7 +104,10 @@ export class LeadsComponent {
   }
 
   priority(lead: LeadListItem): string {
-    return lead.prioridad || (Number(lead.score ?? 0) >= .7 ? 'Alta' : Number(lead.score ?? 0) >= .4 ? 'Media' : 'Baja');
+    const fromApi = priorityLabel(lead.prioridad);
+    if (fromApi) { return fromApi; }
+    const score = Number(lead.score ?? 0);
+    return score >= .7 ? 'Alta' : score >= .4 ? 'Media' : 'Baja';
   }
 
   siteLabel(id: number): string {
